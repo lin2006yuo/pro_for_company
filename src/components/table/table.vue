@@ -1,5 +1,5 @@
 <template>
-  <div class="l_table">
+  <div id="l_table">
     <el-table
       ref="multipleTable"
       :data="data"
@@ -7,9 +7,12 @@
       style="width: 100%"
       @selection-change="handleSelectionChange"
       border
+      :cell-style="{paddingTop: 0, paddingBottom: 0}"
+      :header-cell-style="{paddingTop: 0, paddingBottom: 0}"
+      :row-key="getRowKey"
     >
       <el-table-column align="center" type="selection"></el-table-column>
-      <el-table-column align="center" prop="code" label="简称"></el-table-column>
+      <el-table-column sortable :sort-method="sortFunc" align="center" prop="code" label="简称"></el-table-column>
       <el-table-column align="center" prop="account_name" label="1688账号"></el-table-column>
       <el-table-column align="center" label="会员身份">
         <template slot-scope="scope">{{ scope.row.membership | membership }}</template>
@@ -21,12 +24,6 @@
       </el-table-column>
       <el-table-column align="center" label="系统状态">
         <template slot-scope="scope">
-          <!-- <div class="toggle" id="switch" @click="handleSwichChange(scope.row)">
-            <div class="toggle-text-off">OFF</div>
-            <div class="glow-comp"></div>
-            <div class="toggle-button"></div>
-            <div class="toggle-text-on">ON</div>
-          </div>-->
           <div class="switch">
             <input
               :id="`one_${scope.$index}`"
@@ -38,19 +35,19 @@
           </div>
         </template>
       </el-table-column>
-      <el-table-column align="center" prop="expiry_time" label="失效时间"></el-table-column>
+      <el-table-column sortable align="center" prop="expiry_time" label="失效时间"></el-table-column>
       <el-table-column align="center" prop="order_prefix" label="订单后缀"></el-table-column>
       <el-table-column align="center" prop="create_time" label="创建时间"></el-table-column>
       <el-table-column align="center" prop="update_time" label="更新时间"></el-table-column>
       <el-table-column align="center" label="操作">
         <template slot-scope="scope">
-          <span @click="check(scope.row)" class="handle">查看</span>|
-          <span class="handle">编辑</span>
+          <span @click="check(scope.row, scope.$index, 'check')" class="handle">查看</span>|
+          <span @click="check(scope.row, scope.$index, 'edit')" class="handle">编辑</span>
         </template>
       </el-table-column>
     </el-table>
 
-    <modal :info="row" ref="modal"></modal>
+    <modal ref="modal" @comfirm="edit"></modal>
   </div>
 </template>
 
@@ -59,9 +56,10 @@ import Modal from "@/components/modal";
 
 export default {
   data() {
-    return {
-      row: {}
-    };
+    return {};
+  },
+  render(h) {
+    return h("div", {});
   },
   mounted() {},
   props: {
@@ -101,9 +99,15 @@ export default {
     handleSwichChange(row) {
       this.$emit("update:is_invalid", row);
     },
-    check(row) {
-      this.row = row;
-      this.$refs.modal.showModal();
+    check(row, index, control) {
+      this.$refs.modal.showModal(control, index, row);
+    },
+    edit(row, index) {
+      this.$emit("edit", row, index);
+    },
+    sortFunc(a, b) {},
+    getRowKey(row) {
+      return row.id;
     }
   }
 };
@@ -131,13 +135,13 @@ export default {
 /* ************************ */
 .switch {
   display: block;
-  margin-top: 20px;
+  margin-top: 8px;
 }
 
 .switch .slider {
   position: relative;
   display: inline-block;
-  height: 12px;
+  height: 9px;
   width: 32px;
   border-radius: 8px;
   cursor: pointer;
@@ -149,18 +153,14 @@ export default {
   background: #eeeeee;
   position: absolute;
   left: -8px;
-  top: -8px;
+  top: -7px;
   display: block;
-  width: 24px;
-  height: 24px;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
   box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.2);
   content: '';
   transition: all 0.2s ease;
-}
-
-.switch label {
-  margin-right: 7px;
 }
 
 .switch .input {
@@ -201,3 +201,6 @@ h1 {
   margin-top: 0px;
 }
 </style>
+
+
+

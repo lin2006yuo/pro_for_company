@@ -1,7 +1,7 @@
 <template>
   <div class="home">
-    <control/>
-    <l-table :data="data" v-on:update:is_invalid="handleIvalidChange"/>
+    <control @change="handleChange"/>
+    <l-table @edit="edit" :data="data" v-on:update:is_invalid="handleIvalidChange"/>
   </div>
 </template>
 
@@ -14,7 +14,8 @@ export default {
   name: "home",
   data() {
     return {
-      data: []
+      data: [],
+      origin_data: []
     };
   },
   components: {
@@ -23,6 +24,7 @@ export default {
   },
   mounted() {
     this.data = this.handleData(data.data);
+    this.origin_data = [...this.data];
   },
   methods: {
     handleData(data) {
@@ -45,6 +47,34 @@ export default {
     handleIvalidChange(row) {
       const index = this.data.indexOf(row);
       this.data[index].is_invalid = !this.data[index].is_invalid;
+    },
+    //编辑table
+    edit(row, index) {
+      this.data.splice(index, 1, row);
+      const o_index = this.findIndex(this.origin_data, row);
+      this.origin_data.splice(o_index, 1, row);
+    },
+    findIndex(arr, el) {
+      // console.log(el);
+      return arr.findIndex(v => {
+        return v.id === el.id;
+      });
+    },
+    //改变 【全部】【启用】【停用】状态
+    handleChange(type) {
+      if (type === "全部") {
+        this.data = this.origin_data;
+      } else if (type === "启用") {
+        console.log(type);
+        this.data = this.origin_data.filter(v => {
+          return v.is_invalid === true;
+        });
+      } else if (type === "停用") {
+        console.log(type);
+        this.data = this.origin_data.filter(v => {
+          return v.is_invalid === false;
+        });
+      }
     }
   }
 };

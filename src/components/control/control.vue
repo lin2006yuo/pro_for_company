@@ -2,9 +2,9 @@
   <div class="control_bar">
     <span>状态：</span>
     <el-radio-group @change="handleChange" v-model="selected" size="mini">
-      <el-radio-button label="全部"></el-radio-button>
-      <el-radio-button label="启用"></el-radio-button>
-      <el-radio-button label="停用"></el-radio-button>
+      <el-radio-button name="1" label="全部"></el-radio-button>
+      <el-radio-button name="2" label="启用"></el-radio-button>
+      <el-radio-button name="0" label="停用"></el-radio-button>
     </el-radio-group>
   </div>
 </template>
@@ -13,7 +13,7 @@
 export default {
   data() {
     return {
-      selected: ""
+      selected: "全部"
     };
   },
   components: {},
